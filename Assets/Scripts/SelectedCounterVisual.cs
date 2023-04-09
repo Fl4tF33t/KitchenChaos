@@ -19,7 +19,7 @@ public class SelectedCounterVisual : MonoBehaviour
         {
             Show();
         }
-        else
+        else 
         {
             Hide();
         }

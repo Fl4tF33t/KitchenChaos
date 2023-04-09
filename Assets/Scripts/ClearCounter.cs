@@ -12,5 +12,7 @@ public class ClearCounter : MonoBehaviour
     {
         Transform kitcheObjectTransform = Instantiate(kitchenObjectSO.prefab, counterTopPoint);
         kitcheObjectTransform.localPosition = Vector3.zero;
+
+        Debug.Log(kitcheObjectTransform.GetComponent<KitchenObject>().GetKitchenObjectSO().objName);
     }
 }
