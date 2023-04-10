@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKitchenObjectParent
 {
     public static Player Instance { get; private set; }
 
     public event EventHandler<OnSelectedCounterChangeEventArgs> OnSelectedCounterChange;
     public class OnSelectedCounterChangeEventArgs : EventArgs
     {
-        public ClearCounter selectedCounter;
+        public BaseCounter selectedCounter;
     }
 
     [SerializeField]
@@ -22,10 +22,14 @@ public class Player : MonoBehaviour
     private float moveSpeed = 7f;
     [SerializeField]
     private float rotateSpeed = 7f;
+    [SerializeField]
+    private Transform kitchenObjectHoldPoint;
 
     private bool isWalking;
     private Vector3 lastInteractDir;
-    private ClearCounter selectedCounter;
+    private BaseCounter selectedCounter;
+
+    private KitchenObject kitchenObject;
 
     private void Awake()
     {
@@ -41,7 +45,7 @@ public class Player : MonoBehaviour
     {
         if(selectedCounter != null)
         {
-            selectedCounter.Interact();
+            selectedCounter.Interact(this);
         }
     }
 
@@ -53,6 +57,12 @@ public class Player : MonoBehaviour
 
     private void HandleMovement()
     {
+        //Normalise the movement of the Vector2 inputs
+        //Casts a capsule ray to check collision of objects to prevent movement
+        //Provides optional movement if two directions are pressed simultaneously
+        //Setes the sate of when a player is walking
+        //Slerps the rotation of the player to face the direction it is moving in
+
         float playerRadius = 0.7f;
         float playerHeight = 2f;
         bool canMove;
@@ -99,11 +109,15 @@ public class Player : MonoBehaviour
 
     private void HandleInteractions()
     {
+        //Detects the interaction it is facing using a raycast
+        //Sets the selectedCounter variable
+
         float interactDistance = 2f;
 
         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
         Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
 
+        //needed to see the direction because moveDir is zero when no inputs are placed
         if(moveDir != Vector3.zero)
         {
             lastInteractDir = moveDir;
@@ -111,11 +125,11 @@ public class Player : MonoBehaviour
 
         if(Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactDistance, countersLayerMask))
         {
-            if(raycastHit.transform.TryGetComponent(out ClearCounter clearCounter))
+            if(raycastHit.transform.TryGetComponent(out BaseCounter baseCounter))
             {
-                if(clearCounter != selectedCounter)
+                if(baseCounter != selectedCounter)
                 {
-                    SetSelectedCounter(clearCounter);
+                    SetSelectedCounter(baseCounter);
                 }
             }
             else
@@ -129,12 +143,37 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void SetSelectedCounter(ClearCounter selectedCounter)
+    private void SetSelectedCounter(BaseCounter selectedCounter)
     {
         this.selectedCounter = selectedCounter;
         OnSelectedCounterChange?.Invoke(this, new OnSelectedCounterChangeEventArgs
         {
             selectedCounter = selectedCounter
         });
+    }
+
+    public Transform GetKitchenObjectFollowTransform()
+    {
+        return kitchenObjectHoldPoint;
+    }
+
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        this.kitchenObject = kitchenObject;
+    }
+
+    public KitchenObject GetKitchenObject()
+    {
+        return kitchenObject;
+    }
+
+    public void ClearKitchenObject()
+    {
+        kitchenObject = null;
+    }
+
+    public bool HasKitchenObject()
+    {
+        return kitchenObject != null;
     }
 }

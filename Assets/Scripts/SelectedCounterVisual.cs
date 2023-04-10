@@ -4,10 +4,14 @@ using UnityEngine;
 
 public class SelectedCounterVisual : MonoBehaviour
 {
+    //separate teh visuals from the logic
+    //The visual scripts are set on the visual components of the object
+    //uses the event system of the Player script, determining if the counter is hit by the raycast
+
     [SerializeField]
-    private ClearCounter clearCounter;
+    private BaseCounter baseCounter;
     [SerializeField]
-    private GameObject visualGameObject;
+    private GameObject[] visualGameObjectArray;
     private void Start()
     {
         Player.Instance.OnSelectedCounterChange += Player_OnSelectedCounterChange;
@@ -15,7 +19,7 @@ public class SelectedCounterVisual : MonoBehaviour
 
     private void Player_OnSelectedCounterChange(object sender, Player.OnSelectedCounterChangeEventArgs e)
     {
-        if(e.selectedCounter == clearCounter) 
+        if(e.selectedCounter == baseCounter) 
         {
             Show();
         }
@@ -27,11 +31,18 @@ public class SelectedCounterVisual : MonoBehaviour
 
     private void Show()
     {
-        visualGameObject.SetActive(true);
+        foreach(GameObject visualGameObject in visualGameObjectArray)
+        {
+            visualGameObject.SetActive(true);
+        }
+        
     }
 
     private void Hide()
     {
-        visualGameObject.SetActive(false);
+        foreach (GameObject visualGameObject in visualGameObjectArray)
+        {
+            visualGameObject.SetActive(false);
+        }
     }
 }

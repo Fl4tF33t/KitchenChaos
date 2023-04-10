@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class PlayerAnimator : MonoBehaviour
 {
+    //Seperate the visuals from the logic
+    //The visual scripts are set on the visual components of the object
+    //uses the animator, and depends of the state machine of the player code to determine it's state
+
     private Player player;
     private Animator animator;
     private const string IS_WALKING = "IsWalking";
 
-    // Start is called before the first frame update
+    // separated animation system that is decoupled from the logic
     private void Awake()
     {
         animator = GetComponent<Animator>();
