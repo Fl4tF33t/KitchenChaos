@@ -12,6 +12,7 @@ public class GameInput : MonoBehaviour
 
     private PlayerInputActions playerInputActions;
     public event EventHandler OnInteractAction;
+    public event EventHandler OnInteractAlternativeAction;
 
     //Awake function usedd to initialize the InputSystem and subscribe to a certain button press
     private void Awake()
@@ -19,12 +20,18 @@ public class GameInput : MonoBehaviour
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
         playerInputActions.Player.Interact.performed += Interact_performed;
+        playerInputActions.Player.InteractAlternate.performed += InteractAlternate_performed;
     }
     
     //The function that is called upon with the subscription of the interact button, shooting out its own even for other classes to subscribe to
     private void Interact_performed(InputAction.CallbackContext obj)
     {
         OnInteractAction?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void InteractAlternate_performed(InputAction.CallbackContext obj)
+    {
+        OnInteractAlternativeAction?.Invoke(this, EventArgs.Empty);
     }
 
     //Vector 2 Norm. value that is performed by the player at all times
